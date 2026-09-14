@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الروزنامات</title>
+    <title>نظام الروزنامات الموحد</title>
     
     <link rel="icon" type="image/png" href="https://i.ibb.co/PGH49sCn/TVTC-Logo.png">
 
@@ -34,12 +34,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-    <!-- مكتبات Firebase الآمنة للاتصال السحابي -->
+    <!-- مكتبات Firebase الآمنة -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
     <style>
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -49,17 +48,11 @@
             transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
         }
 
-        /* Table Styles */
-        .formal-table th, .formal-table td {
-            border: 1px solid #cbd5e1;
-            padding: 0.4rem;
-            vertical-align: middle;
-        }
+        .formal-table th, .formal-table td { border: 1px solid #cbd5e1; padding: 0.4rem; vertical-align: middle; }
         .dark .formal-table th, .dark .formal-table td { border-color: #334155; }
         .formal-table th { background-color: #f8fafc; font-weight: 600; text-align: center; }
         .dark .formal-table th { background-color: #0f172a; color: #e2e8f0; }
 
-        /* Highlights */
         .highlight-red { background-color: #fef2f2 !important; }
         .dark .highlight-red { background-color: rgba(127, 29, 29, 0.15) !important; }
         .highlight-orange { background-color: #fff7ed !important; }
@@ -70,58 +63,38 @@
         .zebra-row { background-color: #f8fafc; }
         .dark .zebra-row { background-color: rgba(30, 41, 59, 0.4); }
         
-        .progress-ring__circle {
-            transition: stroke-dashoffset 0.6s ease-in-out;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
+        .progress-ring__circle { transition: stroke-dashoffset 0.6s ease-in-out; transform: rotate(-90deg); transform-origin: 50% 50%; }
 
-        /* Standard Print Mode */
         @media print {
             @page { size: A4 landscape; margin: 2.5mm; }
             body { background: white !important; color: black !important; font-size: 11pt !important; }
             .no-print, .upload-btn-container { display: none !important; }
-            
             .inst-name { font-size: 11pt !important; white-space: nowrap !important; }
             .college-name { font-size: 10pt !important; }
-
-            header {
-                display: flex !important; flex-direction: row !important; justify-content: space-between !important;
-                align-items: center !important; border-bottom: 2px solid #00693E !important; padding-bottom: 1rem !important; margin-bottom: 1.5rem !important;
-            }
+            header { display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; border-bottom: 2px solid #00693E !important; padding-bottom: 1rem !important; margin-bottom: 1.5rem !important; }
             .header-center { flex: 2 !important; text-align: center !important; }
             .header-side { flex: 1 !important; }
-
-            .print-analytics-section {
-                display: grid !important; grid-template-columns: repeat(12, 1fr) !important; gap: 1.5rem !important;
-                margin-bottom: 2rem !important; width: 100% !important; break-after: page; page-break-after: always;
-            }
+            .print-analytics-section { display: grid !important; grid-template-columns: repeat(12, 1fr) !important; gap: 1.5rem !important; margin-bottom: 2rem !important; width: 100% !important; break-after: page; page-break-after: always; }
             .print-analytics-section > .summary-cards-container { grid-column: span 4 !important; }
             .print-analytics-section > .charts-main-container { grid-column: span 8 !important; display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 1rem !important; }
             .print-analytics-section div { border: 1px solid #cbd5e1 !important; background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             canvas { max-height: 220px !important; width: 100% !important; }
-            
             .print-container { box-shadow: none !important; max-width: none !important; width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; }
             .formal-table th { background-color: #f3f4f6 !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 10pt !important; padding: 4px !important; }
             .formal-table th, .formal-table td { border: 1px solid #000 !important; padding: 4px !important; font-size: 10pt !important;}
             .highlight-red, .highlight-orange, .highlight-yellow, .zebra-row { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            
             .zebra-row { background-color: #f8fafc !important; }
-            
             select, input, textarea { border: none !important; background: transparent !important; resize: none; appearance: none; -webkit-appearance: none; color: black !important; font-size: 10pt !important; -webkit-text-fill-color: black !important; opacity: 1 !important; text-align: center; }
             select { background-image: none !important; padding-right: 0 !important; text-align: center; }
             input[type="date"]::-webkit-calendar-picker-indicator { display: none !important; }
             #employeeNotes { border: 1px solid #000 !important; text-align: right !important; height: auto !important; overflow: visible !important; }
-
             .task-input-print { text-align: right !important; }
             .progress-ring__circle { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
 
-        /* Exclusive Print Mode for Quality Weekly Report */
         body.report-print-mode .normal-print { display: none !important; }
         body.report-print-mode .report-print-only { display: block !important; }
         body:not(.report-print-mode) .report-print-only { display: none !important; }
-        
         body.report-print-mode { background: white !important; }
         @media print {
             body.report-print-mode @page { size: A4 landscape !important; margin: 5mm; }
@@ -134,13 +107,6 @@
         .tbl-input:not(:disabled):hover, .tbl-input:not(:disabled):focus { border-color: #cbd5e1; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .dark .tbl-input:not(:disabled):hover, .dark .tbl-input:not(:disabled):focus { border-color: #475569; background: #1e293b; }
         .tbl-input:disabled { cursor: not-allowed; opacity: 0.8; }
-        
-        .theme-switch-wrapper { position: relative; width: 50px; height: 26px; }
-        .theme-switch { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; z-index: 2;}
-        .dark .slider { background-color: #00693E; }
-        .dark .slider:before { transform: translateX(24px); }
         
         .read-only-banner { background: repeating-linear-gradient(45deg, #fef3c7, #fef3c7 10px, #fde68a 10px, #fde68a 20px); color: #b45309; }
         .dark .read-only-banner { background: repeating-linear-gradient(45deg, #451a03, #451a03 10px, #78350f 10px, #78350f 20px); color: #fde68a; }
@@ -155,7 +121,6 @@
                 <img src="https://i.ibb.co/C5mdG2kd/image.png" alt="شعار النظام" class="h-28 mx-auto mb-4 object-contain">
                 <h2 class="text-2xl font-bold text-tvtcGreen dark:text-emerald-400">نظام الروزنامات الموحد</h2>
             </div>
-            
             <form id="loginForm" class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold mb-1 dark:text-slate-300">اسم المستخدم</label>
@@ -199,7 +164,7 @@
                     </button>
                     <div class="h-6 w-px bg-slate-300 dark:bg-slate-700 hidden sm:block"></div>
 
-<!-- مركز الإشعارات (للجودة فقط) -->
+                    <!-- مركز الإشعارات (للجودة فقط) -->
                     <div id="notificationsWrapper" class="relative hidden no-print">
                         <button onclick="toggleNotifications(event)" class="relative p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                             <i class="ph ph-bell text-xl text-slate-700 dark:text-slate-300"></i>
@@ -211,20 +176,16 @@
                                 <h3 class="font-bold text-sm text-tvtcGreen dark:text-emerald-400">الإشعارات الحديثة</h3>
                                 <button onclick="clearNotifications()" class="text-[10px] text-slate-500 hover:text-red-500 font-bold transition-colors">مسح الكل</button>
                             </div>
-                            <div id="notifList" class="max-h-64 overflow-y-auto p-2 space-y-2 text-right">
-                                <!-- الإشعارات ستظهر هنا -->
-                            </div>
+                            <div id="notifList" class="max-h-64 overflow-y-auto p-2 space-y-2 text-right"></div>
                         </div>
                     </div>
                     
                     <button id="manageUsersBtn" onclick="openManageUsersModal()" class="hidden text-xs bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded-md transition-colors items-center gap-1 font-sans shadow-sm">
                         <i class="ph ph-users-three"></i> الحسابات
                     </button>
-
                     <button id="printReportBtn" onclick="openReportModal()" class="hidden text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-md transition-colors items-center gap-1 font-sans shadow-sm">
                         <i class="ph ph-chart-bar"></i> تقرير الجودة
                     </button>
-
                     <button onclick="window.print()" class="text-xs bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white px-3 py-2 rounded-md transition-colors flex items-center gap-1 font-sans">
                         <i class="ph ph-printer"></i> طباعة الوثيقة
                     </button>
@@ -262,19 +223,16 @@
         </nav>
 
         <main class="print-container w-full max-w-[1400px] mx-auto mt-8 bg-white dark:bg-darkCard shadow-xl border border-slate-200 dark:border-slate-800 rounded-sm p-8 md:p-12">
-            
             <header class="flex flex-col md:flex-row justify-between items-center border-b-2 border-tvtcGreen dark:border-emerald-700 pb-6 mb-8 gap-6">
                 <div class="header-side text-right space-y-1">
                     <h2 class="inst-name font-bold text-lg">المؤسسة العامة للتدريب التقني والمهني</h2>
                     <h3 class="college-name font-semibold text-md">الكلية التقنية لعلوم البيئة ببريدة</h3>
                 </div>
-                
                 <div class="header-center text-center space-y-2 flex flex-col items-center">
                     <img src="https://i.ibb.co/PGH49sCn/TVTC-Logo.png" alt="TVTC Logo" class="h-20 mx-auto object-contain mb-2">
                     <h1 class="text-xl font-extrabold text-tvtcGreen dark:text-emerald-400">روزنامة الأعمال الأسبوعية</h1>
                     <p class="text-md font-bold bg-slate-100 dark:bg-slate-800 inline-block px-4 py-1 rounded-full border border-slate-200 dark:border-slate-700">الخطة التنفيذية لـ: <span id="docRoleTitle" class="text-tvtcGreen dark:text-emerald-400"></span></p>
                 </div>
-
                 <div class="header-side text-left space-y-1">
                     <h2 class="font-bold text-md" id="docSemesterTitle">الفصل التدريبي</h2>
                     <h3 class="font-semibold text-sm" id="docYearTitle">للعام التدريبي</h3>
@@ -357,13 +315,13 @@
         <div class="bg-white dark:bg-darkCard w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 m-4">
             <div class="flex justify-between items-center mb-6 border-b pb-4 dark:border-slate-700">
                 <h2 class="text-xl font-bold text-tvtcGreen dark:text-emerald-400 flex items-center gap-2">
-                    <i class="ph ph-users-three"></i> إدارة بيانات الدخول للمستخدمين
+                    <i class="ph ph-users-three"></i> إدارة الحسابات والروزنامات
                 </h2>
                 <button onclick="closeManageUsersModal()" class="text-slate-400 hover:text-red-500 transition-colors">
                     <i class="ph ph-x text-2xl"></i>
                 </button>
             </div>
-<!-- إضافة حساب جديد -->
+            
             <div class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                 <h3 class="text-sm font-bold text-tvtcGreen dark:text-emerald-400 mb-3"><i class="ph ph-plus-circle"></i> إضافة قسم / روزنامة جديدة</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
@@ -372,9 +330,9 @@
                     <div><button type="button" onclick="addNewAccount()" class="w-full py-1.5 bg-tvtcGreen hover:bg-green-800 text-white rounded-md text-sm font-bold transition-colors">إضافة</button></div>
                 </div>
             </div>
-            <div id="usersListContainer" class="space-y-3">
-                <!-- User rows injected here via JS -->
-            </div>
+
+            <div id="usersListContainer" class="space-y-3"></div>
+            
             <div class="mt-6 flex justify-end gap-3 border-t dark:border-slate-700 pt-4">
                 <button onclick="closeManageUsersModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-md font-bold transition-colors">إلغاء</button>
                 <button onclick="saveUsersDB()" class="px-4 py-2 bg-tvtcGreen hover:bg-green-800 text-white rounded-md font-bold transition-colors flex items-center gap-2 shadow-sm">
@@ -385,7 +343,7 @@
     </div>
 
     <script>
-        // --- 1. التهيئة السحابية (Firebase + Cloudinary) ---
+        // --- الإعدادات والمفاتيح ---
         const firebaseConfig = {
             apiKey: "AIzaSyDQboSrBzcdc_d8-t6eSkUwqSRLlWpJMAg",
             authDomain: "calendars-e4712.firebaseapp.com",
@@ -400,7 +358,7 @@
         const CLOUDINARY_CLOUD_NAME = "skbsgfab";
         const CLOUDINARY_UPLOAD_PRESET = "hzjoqohg";
 
-        // --- 2. البيانات الثابتة ---
+        // --- المتغيرات العامة الأساسية ---
         const DEFAULT_USERS_BY_ROLE = {
             "عميد الكلية": { username: "dean", pass: "123", isAdmin: false },
             "وكيل ضبط الجودة": { username: "quality", pass: "123", isAdmin: true },
@@ -421,28 +379,15 @@
         ];
 
         let usersDB = {};
-        
-        async function loadUsersDB() {
-            try {
-                const docSnap = await db.collection("system").doc("usersDB").get();
-                if (docSnap.exists) {
-                    usersDB = docSnap.data();
-                    for(const role in DEFAULT_USERS_BY_ROLE) {
-                        if(!usersDB[role]) usersDB[role] = DEFAULT_USERS_BY_ROLE[role];
-                    }
-                } else {
-                    usersDB = JSON.parse(JSON.stringify(DEFAULT_USERS_BY_ROLE));
-                    await db.collection("system").doc("usersDB").set(usersDB);
-                }
-            } catch (e) {
-                console.warn("Failed to load users from cloud. Using defaults.", e);
-                usersDB = JSON.parse(JSON.stringify(DEFAULT_USERS_BY_ROLE));
-            }
-        }
-
-        let loggedInUser = null, canEditCurrentPlan = false, globalData = {}, currentKey = "", currentState = null, barChartInst = null, doughChartInst = null;
+        let loggedInUser = null, canEditCurrentPlan = false;
+        let globalSettings = {}; 
+        let currentState = null, currentKey = "";
+        let planUnsubscribe = null;
+        let barChartInst = null, doughChartInst = null;
         let ROLES = Object.keys(DEFAULT_USERS_BY_ROLE);
+        
         const YEARS = ["1447", "1448", "1449", "1450", "1451"], SEMESTERS = ["الفصل الأول", "الفصل الثاني"];
+        const NUM_WEEKS = 20, TASKS_PER_WEEK = 6;
         
         const statuses = {
             'none': { label: '---', val: 0, textClass: 'text-slate-400', color: '#94a3b8' },
@@ -454,91 +399,6 @@
             'na': { label: 'لا ينطبق', val: 100, textClass: 'text-slate-500 font-bold', color: '#64748b' }
         };
 
-        const NUM_WEEKS = 20, TASKS_PER_WEEK = 6;
-
-        let notificationsDB = [];
-        
-        function loadAndListenNotifications() {
-            db.collection("system").doc("notifications").onSnapshot((doc) => {
-                if (doc.exists) {
-                    notificationsDB = doc.data().list || [];
-                    renderNotifications();
-                } else {
-                    notificationsDB = [];
-                    renderNotifications();
-                }
-            });
-        }
-
-        function addNotification(role, weekName, taskText) {
-            notificationsDB.unshift({
-                id: Date.now(),
-                role: role,
-                weekName: weekName,
-                taskText: taskText,
-                time: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
-                read: false
-            });
-            if (notificationsDB.length > 30) notificationsDB.pop(); // الاحتفاظ بآخر 30 إشعار فقط
-            db.collection("system").doc("notifications").set({ list: notificationsDB }).catch(e => console.warn(e));
-        }
-
-        function renderNotifications() {
-            if (!loggedInUser || !loggedInUser.isAdmin) return;
-            const list = document.getElementById('notifList');
-            const badge = document.getElementById('notifBadge');
-            
-            let unreadCount = notificationsDB.filter(n => !n.read).length;
-            if (unreadCount > 0) {
-                badge.innerText = unreadCount;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-
-            if (notificationsDB.length === 0) {
-                list.innerHTML = '<div class="text-center text-xs text-slate-400 py-4 font-bold">لا توجد إشعارات حالياً</div>';
-                return;
-            }
-
-            list.innerHTML = notificationsDB.map(n => `
-                <div class="p-2 bg-slate-50 dark:bg-slate-800/50 rounded border ${n.read ? 'border-transparent' : 'border-emerald-200 dark:border-emerald-800'}">
-                    <p class="text-xs font-bold text-slate-800 dark:text-slate-200">
-                        قام <span class="text-tvtcGreen dark:text-emerald-400">${n.role}</span> بإرفاق شاهد
-                    </p>
-                    <p class="text-[10px] text-slate-500 mt-1">${n.weekName} | ${n.taskText.length > 25 ? n.taskText.substring(0,25)+'...' : n.taskText}</p>
-                    <p class="text-[9px] text-slate-400 mt-1 text-left">${n.time}</p>
-                </div>
-            `).join('');
-        }
-
-        function toggleNotifications(e) {
-            e.stopPropagation();
-            const dropdown = document.getElementById('notifDropdown');
-            dropdown.classList.toggle('hidden');
-            
-            if (!dropdown.classList.contains('hidden')) {
-                let hasUnread = false;
-                notificationsDB.forEach(n => { if (!n.read) hasUnread = true; n.read = true; });
-                if (hasUnread) {
-                    db.collection("system").doc("notifications").set({ list: notificationsDB }).catch(e => console.warn(e));
-                }
-            }
-        }
-
-        function clearNotifications() {
-            db.collection("system").doc("notifications").set({ list: [] }).catch(e => console.warn(e));
-        }
-
-        // إغلاق القائمة عند النقر خارجها
-        window.addEventListener('click', (e) => {
-            const dropdown = document.getElementById('notifDropdown');
-            if (dropdown && !dropdown.classList.contains('hidden') && !e.target.closest('#notificationsWrapper')) {
-                dropdown.classList.add('hidden');
-            }
-        });
-
-        // Custom task database
         const DEPARTMENTS_TASKS = {
             0: ["إضافة الجداول التدريبية على مداخل القاعات"],
             1: ["تزويد المدربين بالتقويم التدريبي", "توزيع الارشاد التدريبي", "تهيئة المدرب الجديد"],
@@ -562,182 +422,150 @@
         };
 
         const DEFAULT_ROLE_TASKS = {
-            "عميد الكلية": {
-                0: ["مراجعة دليل العميد", "محضر اجتماع مناقشة أعمال وحدة تقنية المعلومات"],
-                1: ["تشكيل لجنة الخطة التشغيلية", "تشكيل لجان المنشأة", "متابعة جاهزية المنشأة لبدء التدريب"],
-                2: ["محضر اجتماع إعداد الخطة التشغيلية", "متابعة سير العملية التدريبية", "استلام التقرير الختامي للمنشأة"],
-                3: ["محضر اجتماع مناقشة أعمال وحدة الاتصال المؤسسي", "محضر اجتماع مناقشة أعمال مركز خدمة المجتمع", "الاعداد لتوقيع شراكة مع شركة الوطنية", "محضر اجتماع مناقشة أعمال وحدة تقنية المعلومات"],
-                4: ["محضر اجتماع مناقشة أعمال إدارة الخدمات المساندة", "متابعة أعمال جرد العهد والتأكيد على تحديثها في النظام", "اعتماد توزيع السلف", "متابعة إعداد الموازنة التقديرية لعرضها على مجلس المنشأة"],
-                5: ["اعتماد محضر مجلس الكلية الأول", "متابعة أداء الوكلاء", "محضر اجتماع مناقشة أعمال وحدة الرقابة"],
-                6: ["محضر اجتماع مناقشة أعمال قسم التنسيق الوظيفي", "متابعة تفعيل مذكرات التفاهم والشراكات"],
-                7: ["متابعة مؤشرات الأداء", "زيارة ميدانية لمرافق المنشأة"],
-                8: ["محضر اجتماع مراجعة الهيكل التنظيمي", "تقرير عن نتائج مراجعة الهيكل التنظيمي"],
-                9: ["محضر اجتماع مناقشة أعمال إدارة الخدمات المساندة", "متابعة تطبيق معايير الأمن والسلامة", "متابعة أعمال لجنة تقييم المخاطر", "متابعة أعمال الصيانة"],
-                10: ["محضر اجتماع مناقشة أعمال وحدة الاتصال المؤسسي"],
-                11: ["إعداد تقرير الاستدامة والاستثمارات"],
-                12: ["تقرير تنفيذ مبادرات الخطة التشغيلية", "تقرير التقدم والانجاز في تنفيذ الخطط التطويرية مع التوصيات"],
-                13: ["محضر اجتماع مناقشة أعمال قسم التنسيق الوظيفي"],
-                14: ["محضر اجتماع مشاورة أصحاب المصلحة في الخطة التشغيلية", "مراسلة أصحاب العمل والمصلحة لمراجعة البرامج التدريبية"],
-                15: ["متابعة تحضير جداول الفصل القادم", "متابعة أداء الوكلاء", "تقرير براءات الاختراع وجوائز التميز"],
-                16: ["محضر اجتماع مناقشة أعمال وحدة الاتصال المؤسسي", "استلام التقرير الختامي للمنشأة"],
-                17: ["الاشراف على سير الاختبارات النهائية", "إعداد تقرير نسبة المؤشرات التشغيلية المتحققة", "تقييم الأداء لمنسوبي الكلية"],
-                18: ["اعتماد محضر مجلس الكلية الثاني", "تقدير الطاقة الاستيعابية للفصل القادم", "تقرير تقييم أعضاء مجلس الكلية", "استلام الخطط التنفيذية للوكلاء وأقسام العمادة"]
-            },
-            "وكيل ضبط الجودة": {
-                0: ["تزويد رؤساء الأقسام بالتقويم التدريبي", "إعداد مجلدات الجودة لأقسام الكلية", "محضر اجتماع منسقي الجودة", "تقرير بدء التدريب"],
-                1: ["تقرير الإجراءات التحسينية لملاحظات بدء التدريب", "تقرير تحليل نتائج المتدربين للكلية وخطط التحسين", "خطة تحسين قياس جودة المخرجات", "متابعة تطبيق ملف المدرب وتوصيف المقرر"],
-                2: ["تقرير تحليل نتائج المتدربين في المقررات للفصل السابق", "تقريرمتابعة تنفيذ خطط تحسين قياس جودة مخرجات التدريب", "نشر أهمية تطبيق منصة المهارات العملية"],
-                3: ["متابعة مستوى التقدم في تطبيق نظام جودة التدريب", "نشر ثقافة الجودة - ورش الاستدامة بعد الاعتماد", "برنامج متابعة سير التدريب", "حفل تكريم لجان الاعتماد"],
-                4: ["تشكيل لجان الجودة وطلب اعتمادها من العميد", "تقرير منصة المهارات العملية", "مقارنة تحاليل النتائج النهائية", "متابعة الخطط التنفيذية (الروزنامات)"],
-                5: ["استلام تقرير منصة المهارات العملية", "إعداد تقرير منصة المهارات العملية", "تقرير جاهزية الأقسام للاختبارات الفصلية الأولى", "متابعة مستوى التقدم في تطبيق نظام جودة التدريب"],
-                6: ["محاضر اجتماعات لجان الجودة", "متابعة تطبيق ورفع ملف المدرب وتوصيف المقرر على منصة تقني", "قياس مؤشرات الأداء"],
-                8: ["متابعة تنفيذ الخطة التشغيلية للكلية", "متابعة مستوى التقدم في تطبيق نظام جودة التدريب", "ورش عمل التقويم الذاتي", "تقديم دورة الجودة في كتابة التقارير"],
-                9: ["تقرير تنفيذ الاختبارات الفصلية الأولى", "تقرير تحليل النتائج للاختبارات الفصلية الأولى", "الاستعدادات لزيارة فريق التقويم الخارجي", "نشر ثقافة الجودة"],
-                10: ["تقرير الإجراءات التحسينية لنتائج الاختبارات الفصلية الأولى", "زيارة فريق التقويم الخارجي", "نشر ثقافة الجودة", "تقرير جاهزية الأقسام للاختبارات الفصلية الثانية"],
-                11: ["قياس مؤشرات الأداء", "إعداد خطة المراجعة الداخلية", "إعداد تقرير التقويم الخارجي", "إعداد منصة اختبارات الجودة"],
-                12: ["تقرير تنفيذ الاختبارات الفصلية الثانية", "إعداد تقرير منصة المهارات العملية", "تقرير التهيئة لاختبار جودة المخرجات", "البدء بالمراجعة الداخلية"],
-                13: ["إعداد تقرير اليوم العالمي للجودة", "متابعة التقدم في منهجية الجودة", "تقرير متطلبات و تهيئة المتدربين لقياس جودة مخرجات التدريب", "ورش عمل لجان الجودة"],
-                14: ["إعداد وتجهيز قياسات الرضا", "تقرير تنفيذ الاختبارات الفصلية الثانية", "نشر ثقافة الجودة", "تجهيز أعمال اليوم العالمي للجودة"],
-                15: ["تقرير تحليل النتائج للاختبارات الفصلية الثانية", "تقرير تنفيذ اختبار جودة المخرجات", "تقرير الإجراءات التحسينية لنتائج الاختبارات الفصلية الثانية", "تقرير مقارنة تحليل نتائج المتدربين للاختبارات الفصلية"],
-                16: ["تقرير جاهزية الأقسام للاختبار النهائي", "استلام خطط التحسين وعرضها على مجلس الكلية", "متابعة تنفيذ الخطة التشغيلية للكلية", "تقارير المراجعة الداخلية"],
-                17: ["إعداد خطة وكالة الجودة", "تقرير نتائج اختبار جودة المخرجات"],
-                18: ["إعداد التقرير السنوي", "متابعة تحليل نواتج التدريب بالتنسيق مع وكيل التدريب", "تقرير تنفيذ الاختبارات النهائية"]
-            },
-            "وكيل التدريب": {
-                0: ["متابعة تسجيل المتدربين في الشعب التدريبية"],
-                1: ["متابعة استلام خطط المقررات من المدربين"],
-                2: ["استلام تقارير المتدربين المتعثرين", "استلام تحاليل النتائج النهائية للأقسام وعرضها على المجلس"],
-                3: ["متابعة تفعيل التدرب الإلكتروني", "متابعة تفعيل الارشاد التدريبي بالتنسيق مع وكيل المتدربين"],
-                4: ["متابعة خطط ابناء القدرات للمدربين وعرضها على العميد"],
-                5: ["متابعة حصر التجهيزات المتوفرة في الأقسام", "عقد الاجتماعات الدورية مع رؤساء الأقسام"],
-                6: ["متابعة سير الاختبارات الفصلية الأولى", "استلام تقرير منصة المهارات العملية"],
-                8: ["تزويد العميد بتقارير الزيارات الاشرافية", "استلام تقرير تنفيذ الاختبار الفصلي 1", "استلام تقرير منصة المهارات العملية"],
-                9: ["تزويد وكيل الجودة بتقارير تحليل الاختبارات 1"],
-                10: ["متابعة روزنامات رؤساء الأقسام وعرضها على العميد", "استلام تقرير منصة المهارات العملية"],
-                11: ["إعداد محضر مناقشة اجتماعات مجالس الأقسام", "استلام تقارير الطاقة الاستيعابية للفصل القادم", "استلام وتزويد وكيل الجودة بمحاضر مستوى أداء المدربين"],
-                12: ["متابعة سير الاختبارات الفصلية الثانية", "استلام تقرير تنفيذ الاختبار الفصلي 2", "تزويد وكيل الجودة بتقارير تحليل الاختبارات 2"],
-                13: ["تزويد وكيل الجودة بتقارير تحليل الاختبارات 2"],
-                14: ["استلام تقرير تنفيذ الاختبار الفصلي 2"],
-                15: ["تزويد العميد بتقرير مراجعة الخطط التدريبية والمناهج", "استلام تقارير متابعة تنفيذ الاختبار ات وعرضها على العميد", "استلام محاضر اجتماعات تطور المتدربين وتحصيلهم"],
-                16: ["استلام محاضر اجتماعات لجان الاختبارات النهائية", "تزويد العميد بجداول الاختبارات النهائية", "متابعة جاهزية الأقسام للاختبارات النهائية"],
-                17: ["تزويد العميد بالاحتياج من المدربين والتجهيزات", "تزويد العميد بخطة وكالة التدريب", "استلام خطط رؤساء الأقسام وعرضها على العميد", "تقييم الأداء لرؤساء الأقسام"],
-                18: ["تزويد العميد بتقرير إنجازات وكالة التدريب", "المساهمة بإعداد الموازنة التقديرية للكلية", "المشاركة بإعداد الخطة التشغيلية للكلية للفصل القادم", "استلام جداول الفصل القادم وعرضها على العميد"]
-            },
-            "وكيل شؤون المتدربين": {
-                0: ["متابعة بناء الخطط الفصلية لوحدات الوكالة", "تنفيذ إجراءات الكافتيريا والقرطاسية", "رفع الميزانيات التقديرية لتنفيذ البرامج اللاصفية", "مراجعة فرص التحسين"],
-                1: ["تشكيل اللجنة التأديبية", "تنفيذ الاختبار النهائي البديل بالنتسيق مع وكيل التدريب", "المشاركة بإعداد خطة المنشأة التشغيلية للفصل القادم"],
-                2: ["متابعة تنفيذ برامج التهيئة للمستجدين والتدريب التعاوني", "دراسة طلبات إعادة القيد والرفع لمجلس الكلية", "اعتماد طلبات المستحقين للإعفاء من التدريب التعاوني", "متابعة طلبات المتدربين عبر رايات"],
-                3: ["متابعة تسليم وثائق التخرج", "نشر أدلة ولوائح المتدربين", "متابعة الاهتمام بالمتدربين المتميزين", "متابعة الاهتمام بالمتدربين متدني المستوى"],
-                4: ["متابعة تفعيل الارشاد التدريبي بالتنسيق مع وكيل التدريب", "تقرير تنفيذ الخطة التسويقية للفصل السابق", "تقرير تنفيذ إجراءات استقطاب المتدربين للفصل السابق", "اجتماع متابعة سير خطط اقسام الوكالة"],
-                5: ["متابعة السلف المالية لوحدات الوكالة", "متابعة طلبات المتدربين عبر رايات", "محضر اجتماع عن مناقشة عمليات القبول والستجيل"],
-                6: ["متابعة مكافآت المتدربين ومسيراتهم", "تقرير لعينة من معدلات تقدم المتدربين", "متابعة شكر جهات التدريب التعاوني", "اجتماع مناقشة سير خطة الاستقطاب"],
-                7: ["متابعة سجلات المهارات للمتدربين", "محضر اجتماع متابعة أعمال وحدات الوكالة", "متابعة إجراء تقييم الكافتيريا والقرطاسية"],
-                8: ["متابعة تنفيذ عقوبات المخافين للوائح تنظيم السلوك", "متابعة إجراء تقييم الكافتيريا والقرطاسية"],
-                9: ["متابعة تنفيذ برامج الأنشطة", "متابعة طلبات المتدربين عبر رايات", "استلام تقرير عمليات القبول والتسجيل الدوري", "محضر اجتماع عن مناقشة عمليات القبول والستجيل"],
-                10: ["محضر اجتماع تحديد الطاقة الاستيعابة", "استلام التقرير الدوري للأنشطة"],
-                11: ["محضر اجتماع مناقشة معدلات استبقاء المتدربين ومدى تقدمهم"],
-                12: ["متابعة تنفيذ الجولات الإرشادية", "محضر اجتماع لمناقشة تنفيذ الخطة التسويقية", "محضر اجتماع لمناقشة إجراءات استقطاب المتدربين"],
-                13: ["متابعة تنفيذ عقوبات المخافين للوائح تنظيم السلوك", "تزويد وكيل ضبط الجودة بعينة من سجلات تتبع تقدم المتدربين"],
-                14: ["متابعة إنهاء الإجراءات المالية للحفل الختامي للأنشطة", "محضر اجتماع لمناقشة تنفيذ الخطة التسويقية", "محضر اجتماع لمناقشة إجراءات استقطاب المتدربين"],
-                15: ["محضر اجتماع مناقشة المهارات الاجتماعية وقابلية التوظيف", "تقرير عن معدلات استبقاء المتدربين", "متابعة إنهاء الإجراءات المالية للحفل الختامي للأنشطة"],
-                16: ["استلام تقارير وحدات الوكالة", "استلام تقرير خدمات المتدربين", "محضر اجتماع لمناقشة خدمات المتدربين", "تقييم الأداء الوظيفي للموظفين"],
-                17: ["تزويد العميد بتقرير إنجازات الوكالة", "متابعة رفع بيانات رزم المستجدين"],
-                18: ["معالجة طلبات المتدربين للاختبار النهائي البديل", "محضر اجتماع اختتام أعمال الفصل مع وحدات الوكالة", "تزويد العميد بخطة الوكالة للفصل القادم"]
-            },
-            "إدارة الخدمات المساندة": {
-                0: ["مراجعة أدلة الخدمات المساندة", "تزويد العميد بالخطة المالية للمنشأة"],
-                1: ["محضر اجتماع لجنة الموارد البشرية", "نموذج من توصيفات الوظائف والمهام"],
-                2: ["وثيقة الميزانية", "محضر اجتماع مناقشة السلامة المهنية"],
-                3: ["قاعدة بيانات بأسماء منسوبي الكلية ومؤهلاتهم ومناصبهم"],
-                4: ["معدل الإنفاق السنوي على المتدرب"],
-                5: ["جولة لمشرف العيادة"],
-                7: ["تقرير عن الصحة (العيادة) في المنشأة", "محضر اجتماع مناقشة الصحة  (العيادة)"],
-                8: ["تقرير عن السلامة المهنية في المنشأة", "محضر اجتماع مناقشة السلامة المهنية"],
-                9: ["جولة مشرف السلامة"],
-                11: ["تقرير عن مرافق المنشأة", "تقرير عن كفاءة مرافق المنشأة  متضمنا التوصيات"],
-                12: ["تقرير عن الصيانة الدورية لمرافق المنشأة"],
-                13: ["وثيقة تقييم المخاطر", "تقرير وثيقة تحليل المخاطر متضمنا التوصيات"],
-                14: ["حفظ نسخ من تقارير التدقيق المالي الداخلي والخارجي متضمنة التوصيات"],
-                15: ["التقرير النهائي للموارد البشرية (توظيف، ترقيات، تطوير)"],
-                16: ["تزويد العميد بالتقرير المالي السنوي", "إعداد تقرير الإيرادات والمصروفات"],
-                17: ["تقرير نتائج تحليل التقرير النهائي متضمنا التوصيات", "تقرير نتائج تحليل التقرير النهائي متضمنا التوصيات"],
-                18: ["تحليل تقرير الإيرادات والمصروفات متضمنا التوصيات"]
-            },
-            "قسم التنسيق الوظيفي": {
-                0: ["مراجعة أدلة وسياسات التنسيق  الوظيفي"],
-                1: ["إعداد وتحديث قاعدة بيانات أصحاب العمل", "تقرير تحليل الخطط التشغيلية (الروزنامة) للشراكة مع أصحاب العمل"],
-                2: ["لقاء تهيئة الخريجين", "محضر اجتماع مناقشة شؤون الخريجين", "تقرير تنفيذ توصيات الاعتماد المؤسسي"],
-                3: ["تحديث قاعدة بيانات الخريجين", "تقرير عن أعداد ونسب المتدربين الذين حصلوا على عمل نتيجة الشراكة", "بيانات أعداد الخريجين لثلاث سنوات ماضية"],
-                4: ["إعداد محاضر اجتماعات مع أصحاب العمل", "العمل على إقامة لقاءات التوظيف"],
-                5: ["خطابات استشارة أصحاب العمل في تطوير الخطة الاستراتيجية والتشغيلية"],
-                8: ["إعداد تقارير معدل التقدم في الشراكة مع أصحاب العمل", "إعداد تقارير ماتم إنجازه من مبادرات نتيجة الشراكة مع أصحاب العمل"],
-                10: ["إعداد محاضر اجتماعات مع أصحاب العمل لمناقشة وجهات المتدربين", "إعداد تقرير تحليل استخدام بيانات ووجهات المتدرين"],
-                14: ["تقرير الأنشطة المنفذة لتعزيز علاقات الخريجين متضمنا التوصيات"],
-                15: ["تقرير النسبة المئوية من التوصيات المنفذة لأصحاب العمل", "تقرير إنجاز توظيف المتدربين في تخصصاتهم متضمنا التوصيات"],
-                16: ["تقرير عدد الإتفاقيات الموقعة مع أصحاب العمل", "تقرير عدد اجتماعات المجلس الإستشاري لأصحاب العمل"],
-                17: ["تقرير نسبة المؤشرات الاستراتيجية المحققة", "تقرير عدد مرات الدخول والتحديث", "تقرير مبادرات الشراكات متضمنا التوصيات"],
-                18: ["إعداد التقرير الفصلي"]
-            },
-            "قسم الدراسات العامة": DEPARTMENTS_TASKS,
-            "قسم تقنية الأعمال": DEPARTMENTS_TASKS,
-            "قسم تقنية البيئة": DEPARTMENTS_TASKS,
-            "قسم تقنية الغذاء": DEPARTMENTS_TASKS
+            "عميد الكلية": { 0: ["مراجعة دليل العميد", "محضر اجتماع مناقشة أعمال وحدة تقنية المعلومات"], 1: ["تشكيل لجنة الخطة التشغيلية", "تشكيل لجان المنشأة", "متابعة جاهزية المنشأة لبدء التدريب"], 2: ["محضر اجتماع إعداد الخطة التشغيلية", "متابعة سير العملية التدريبية", "استلام التقرير الختامي للمنشأة"], 3: ["محضر اجتماع مناقشة أعمال وحدة الاتصال المؤسسي", "محضر اجتماع مناقشة أعمال مركز خدمة المجتمع", "الاعداد لتوقيع شراكة مع شركة الوطنية", "محضر اجتماع مناقشة أعمال وحدة تقنية المعلومات"], 4: ["محضر اجتماع مناقشة أعمال إدارة الخدمات المساندة", "متابعة أعمال جرد العهد والتأكيد على تحديثها في النظام", "اعتماد توزيع السلف", "متابعة إعداد الموازنة التقديرية لعرضها على مجلس المنشأة"], 5: ["اعتماد محضر مجلس الكلية الأول", "متابعة أداء الوكلاء", "محضر اجتماع مناقشة أعمال وحدة الرقابة"], 6: ["محضر اجتماع مناقشة أعمال قسم التنسيق الوظيفي", "متابعة تفعيل مذكرات التفاهم والشراكات"], 7: ["متابعة مؤشرات الأداء", "زيارة ميدانية لمرافق المنشأة"], 8: ["محضر اجتماع مراجعة الهيكل التنظيمي", "تقرير عن نتائج مراجعة الهيكل التنظيمي"], 9: ["محضر اجتماع مناقشة أعمال إدارة الخدمات المساندة", "متابعة تطبيق معايير الأمن والسلامة", "متابعة أعمال لجنة تقييم المخاطر", "متابعة أعمال الصيانة"], 10: ["محضر اجتماع مناقشة أعمال وحدة الاتصال المؤسسي"], 11: ["إعداد تقرير الاستدامة والاستثمارات"], 12: ["تقرير تنفيذ مبادرات الخطة التشغيلية", "تقرير التقدم والانجاز في تنفيذ الخطط التطويرية مع التوصيات"], 13: ["محضر اجتماع مناقشة أعمال قسم التنسيق الوظيفي"], 14: ["محضر اجتماع مشاورة أصحاب المصلحة في الخطة التشغيلية", "مراسلة أصحاب العمل والمصلحة لمراجعة البرامج التدريبية"], 15: ["متابعة تحضير جداول الفصل القادم", "متابعة أداء الوكلاء", "تقرير براءات الاختراع وجوائز التميز"], 16: ["محضر اجتماع مناقشة أعمال وحدة الاتصال المؤسسي", "استلام التقرير الختامي للمنشأة"], 17: ["الاشراف على سير الاختبارات النهائية", "إعداد تقرير نسبة المؤشرات التشغيلية المتحققة", "تقييم الأداء لمنسوبي الكلية"], 18: ["اعتماد محضر مجلس الكلية الثاني", "تقدير الطاقة الاستيعابية للفصل القادم", "تقرير تقييم أعضاء مجلس الكلية", "استلام الخطط التنفيذية للوكلاء وأقسام العمادة"] },
+            "وكيل ضبط الجودة": { 0: ["تزويد رؤساء الأقسام بالتقويم التدريبي", "إعداد مجلدات الجودة لأقسام الكلية", "محضر اجتماع منسقي الجودة", "تقرير بدء التدريب"], 1: ["تقرير الإجراءات التحسينية لملاحظات بدء التدريب", "تقرير تحليل نتائج المتدربين للكلية وخطط التحسين", "خطة تحسين قياس جودة المخرجات", "متابعة تطبيق ملف المدرب وتوصيف المقرر"], 2: ["تقرير تحليل نتائج المتدربين في المقررات للفصل السابق", "تقريرمتابعة تنفيذ خطط تحسين قياس جودة مخرجات التدريب", "نشر أهمية تطبيق منصة المهارات العملية"], 3: ["متابعة مستوى التقدم في تطبيق نظام جودة التدريب", "نشر ثقافة الجودة - ورش الاستدامة بعد الاعتماد", "برنامج متابعة سير التدريب", "حفل تكريم لجان الاعتماد"], 4: ["تشكيل لجان الجودة وطلب اعتمادها من العميد", "تقرير منصة المهارات العملية", "مقارنة تحاليل النتائج النهائية", "متابعة الخطط التنفيذية (الروزنامات)"], 5: ["استلام تقرير منصة المهارات العملية", "إعداد تقرير منصة المهارات العملية", "تقرير جاهزية الأقسام للاختبارات الفصلية الأولى", "متابعة مستوى التقدم في تطبيق نظام جودة التدريب"], 6: ["محاضر اجتماعات لجان الجودة", "متابعة تطبيق ورفع ملف المدرب وتوصيف المقرر على منصة تقني", "قياس مؤشرات الأداء"], 8: ["متابعة تنفيذ الخطة التشغيلية للكلية", "متابعة مستوى التقدم في تطبيق نظام جودة التدريب", "ورش عمل التقويم الذاتي", "تقديم دورة الجودة في كتابة التقارير"], 9: ["تقرير تنفيذ الاختبارات الفصلية الأولى", "تقرير تحليل النتائج للاختبارات الفصلية الأولى", "الاستعدادات لزيارة فريق التقويم الخارجي", "نشر ثقافة الجودة"], 10: ["تقرير الإجراءات التحسينية لنتائج الاختبارات الفصلية الأولى", "زيارة فريق التقويم الخارجي", "نشر ثقافة الجودة", "تقرير جاهزية الأقسام للاختبارات الفصلية الثانية"], 11: ["قياس مؤشرات الأداء", "إعداد خطة المراجعة الداخلية", "إعداد تقرير التقويم الخارجي", "إعداد منصة اختبارات الجودة"], 12: ["تقرير تنفيذ الاختبارات الفصلية الثانية", "إعداد تقرير منصة المهارات العملية", "تقرير التهيئة لاختبار جودة المخرجات", "البدء بالمراجعة الداخلية"], 13: ["إعداد تقرير اليوم العالمي للجودة", "متابعة التقدم في منهجية الجودة", "تقرير متطلبات و تهيئة المتدربين لقياس جودة مخرجات التدريب", "ورش عمل لجان الجودة"], 14: ["إعداد وتجهيز قياسات الرضا", "تقرير تنفيذ الاختبارات الفصلية الثانية", "نشر ثقافة الجودة", "تجهيز أعمال اليوم العالمي للجودة"], 15: ["تقرير تحليل النتائج للاختبارات الفصلية الثانية", "تقرير تنفيذ اختبار جودة المخرجات", "تقرير الإجراءات التحسينية لنتائج الاختبارات الفصلية الثانية", "تقرير مقارنة تحليل نتائج المتدربين للاختبارات الفصلية"], 16: ["تقرير جاهزية الأقسام للاختبار النهائي", "استلام خطط التحسين وعرضها على مجلس الكلية", "متابعة تنفيذ الخطة التشغيلية للكلية", "تقارير المراجعة الداخلية"], 17: ["إعداد خطة وكالة الجودة", "تقرير نتائج اختبار جودة المخرجات"], 18: ["إعداد التقرير السنوي", "متابعة تحليل نواتج التدريب بالتنسيق مع وكيل التدريب", "تقرير تنفيذ الاختبارات النهائية"] },
+            "وكيل التدريب": { 0: ["متابعة تسجيل المتدربين في الشعب التدريبية"], 1: ["متابعة استلام خطط المقررات من المدربين"], 2: ["استلام تقارير المتدربين المتعثرين", "استلام تحاليل النتائج النهائية للأقسام وعرضها على المجلس"], 3: ["متابعة تفعيل التدرب الإلكتروني", "متابعة تفعيل الارشاد التدريبي بالتنسيق مع وكيل المتدربين"], 4: ["متابعة خطط ابناء القدرات للمدربين وعرضها على العميد"], 5: ["متابعة حصر التجهيزات المتوفرة في الأقسام", "عقد الاجتماعات الدورية مع رؤساء الأقسام"], 6: ["متابعة سير الاختبارات الفصلية الأولى", "استلام تقرير منصة المهارات العملية"], 8: ["تزويد العميد بتقارير الزيارات الاشرافية", "استلام تقرير تنفيذ الاختبار الفصلي 1", "استلام تقرير منصة المهارات العملية"], 9: ["تزويد وكيل الجودة بتقارير تحليل الاختبارات 1"], 10: ["متابعة روزنامات رؤساء الأقسام وعرضها على العميد", "استلام تقرير منصة المهارات العملية"], 11: ["إعداد محضر مناقشة اجتماعات مجالس الأقسام", "استلام تقارير الطاقة الاستيعابية للفصل القادم", "استلام وتزويد وكيل الجودة بمحاضر مستوى أداء المدربين"], 12: ["متابعة سير الاختبارات الفصلية الثانية", "استلام تقرير تنفيذ الاختبار الفصلي 2", "تزويد وكيل الجودة بتقارير تحليل الاختبارات 2"], 13: ["تزويد وكيل الجودة بتقارير تحليل الاختبارات 2"], 14: ["استلام تقرير تنفيذ الاختبار الفصلي 2"], 15: ["تزويد العميد بتقرير مراجعة الخطط التدريبية والمناهج", "استلام تقارير متابعة تنفيذ الاختبار ات وعرضها على العميد", "استلام محاضر اجتماعات تطور المتدربين وتحصيلهم"], 16: ["استلام محاضر اجتماعات لجان الاختبارات النهائية", "تزويد العميد بجداول الاختبارات النهائية", "متابعة جاهزية الأقسام للاختبارات النهائية"], 17: ["تزويد العميد بالاحتياج من المدربين والتجهيزات", "تزويد العميد بخطة وكالة التدريب", "استلام خطط رؤساء الأقسام وعرضها على العميد", "تقييم الأداء لرؤساء الأقسام"], 18: ["تزويد العميد بتقرير إنجازات وكالة التدريب", "المساهمة بإعداد الموازنة التقديرية للكلية", "المشاركة بإعداد الخطة التشغيلية للكلية للفصل القادم", "استلام جداول الفصل القادم وعرضها على العميد"] },
+            "وكيل شؤون المتدربين": { 0: ["متابعة بناء الخطط الفصلية لوحدات الوكالة", "تنفيذ إجراءات الكافتيريا والقرطاسية", "رفع الميزانيات التقديرية لتنفيذ البرامج اللاصفية", "مراجعة فرص التحسين"], 1: ["تشكيل اللجنة التأديبية", "تنفيذ الاختبار النهائي البديل بالنتسيق مع وكيل التدريب", "المشاركة بإعداد خطة المنشأة التشغيلية للفصل القادم"], 2: ["متابعة تنفيذ برامج التهيئة للمستجدين والتدريب التعاوني", "دراسة طلبات إعادة القيد والرفع لمجلس الكلية", "اعتماد طلبات المستحقين للإعفاء من التدريب التعاوني", "متابعة طلبات المتدربين عبر رايات"], 3: ["متابعة تسليم وثائق التخرج", "نشر أدلة ولوائح المتدربين", "متابعة الاهتمام بالمتدربين المتميزين", "متابعة الاهتمام بالمتدربين متدني المستوى"], 4: ["متابعة تفعيل الارشاد التدريبي بالتنسيق مع وكيل التدريب", "تقرير تنفيذ الخطة التسويقية للفصل السابق", "تقرير تنفيذ إجراءات استقطاب المتدربين للفصل السابق", "اجتماع متابعة سير خطط اقسام الوكالة"], 5: ["متابعة السلف المالية لوحدات الوكالة", "متابعة طلبات المتدربين عبر رايات", "محضر اجتماع عن مناقشة عمليات القبول والستجيل"], 6: ["متابعة مكافآت المتدربين ومسيراتهم", "تقرير لعينة من معدلات تقدم المتدربين", "متابعة شكر جهات التدريب التعاوني", "اجتماع مناقشة سير خطة الاستقطاب"], 7: ["متابعة سجلات المهارات للمتدربين", "محضر اجتماع متابعة أعمال وحدات الوكالة", "متابعة إجراء تقييم الكافتيريا والقرطاسية"], 8: ["متابعة تنفيذ عقوبات المخافين للوائح تنظيم السلوك", "متابعة إجراء تقييم الكافتيريا والقرطاسية"], 9: ["متابعة تنفيذ برامج الأنشطة", "متابعة طلبات المتدربين عبر رايات", "استلام تقرير عمليات القبول والتسجيل الدوري", "محضر اجتماع عن مناقشة عمليات القبول والستجيل"], 10: ["محضر اجتماع تحديد الطاقة الاستيعابة", "استلام التقرير الدوري للأنشطة"], 11: ["محضر اجتماع مناقشة معدلات استبقاء المتدربين ومدى تقدمهم"], 12: ["متابعة تنفيذ الجولات الإرشادية", "محضر اجتماع لمناقشة تنفيذ الخطة التسويقية", "محضر اجتماع لمناقشة إجراءات استقطاب المتدربين"], 13: ["متابعة تنفيذ عقوبات المخافين للوائح تنظيم السلوك", "تزويد وكيل ضبط الجودة بعينة من سجلات تتبع تقدم المتدربين"], 14: ["متابعة إنهاء الإجراءات المالية للحفل الختامي للأنشطة", "محضر اجتماع لمناقشة تنفيذ الخطة التسويقية", "محضر اجتماع لمناقشة إجراءات استقطاب المتدربين"], 15: ["محضر اجتماع مناقشة المهارات الاجتماعية وقابلية التوظيف", "تقرير عن معدلات استبقاء المتدربين", "متابعة إنهاء الإجراءات المالية للحفل الختامي للأنشطة"], 16: ["استلام تقارير وحدات الوكالة", "استلام تقرير خدمات المتدربين", "محضر اجتماع لمناقشة خدمات المتدربين", "تقييم الأداء الوظيفي للموظفين"], 17: ["تزويد العميد بتقرير إنجازات الوكالة", "متابعة رفع بيانات رزم المستجدين"], 18: ["معالجة طلبات المتدربين للاختبار النهائي البديل", "محضر اجتماع اختتام أعمال الفصل مع وحدات الوكالة", "تزويد العميد بخطة الوكالة للفصل القادم"] },
+            "إدارة الخدمات المساندة": { 0: ["مراجعة أدلة الخدمات المساندة", "تزويد العميد بالخطة المالية للمنشأة"], 1: ["محضر اجتماع لجنة الموارد البشرية", "نموذج من توصيفات الوظائف والمهام"], 2: ["وثيقة الميزانية", "محضر اجتماع مناقشة السلامة المهنية"], 3: ["قاعدة بيانات بأسماء منسوبي الكلية ومؤهلاتهم ومناصبهم"], 4: ["معدل الإنفاق السنوي على المتدرب"], 5: ["جولة لمشرف العيادة"], 7: ["تقرير عن الصحة (العيادة) في المنشأة", "محضر اجتماع مناقشة الصحة  (العيادة)"], 8: ["تقرير عن السلامة المهنية في المنشأة", "محضر اجتماع مناقشة السلامة المهنية"], 9: ["جولة مشرف السلامة"], 11: ["تقرير عن مرافق المنشأة", "تقرير عن كفاءة مرافق المنشأة  متضمنا التوصيات"], 12: ["تقرير عن الصيانة الدورية لمرافق المنشأة"], 13: ["وثيقة تقييم المخاطر", "تقرير وثيقة تحليل المخاطر متضمنا التوصيات"], 14: ["حفظ نسخ من تقارير التدقيق المالي الداخلي والخارجي متضمنة التوصيات"], 15: ["التقرير النهائي للموارد البشرية (توظيف، ترقيات، تطوير)"], 16: ["تزويد العميد بالتقرير المالي السنوي", "إعداد تقرير الإيرادات والمصروفات"], 17: ["تقرير نتائج تحليل التقرير النهائي متضمنا التوصيات", "تقرير نتائج تحليل التقرير النهائي متضمنا التوصيات"], 18: ["تحليل تقرير الإيرادات والمصروفات متضمنا التوصيات"] },
+            "قسم التنسيق الوظيفي": { 0: ["مراجعة أدلة وسياسات التنسيق  الوظيفي"], 1: ["إعداد وتحديث قاعدة بيانات أصحاب العمل", "تقرير تحليل الخطط التشغيلية (الروزنامة) للشراكة مع أصحاب العمل"], 2: ["لقاء تهيئة الخريجين", "محضر اجتماع مناقشة شؤون الخريجين", "تقرير تنفيذ توصيات الاعتماد المؤسسي"], 3: ["تحديث قاعدة بيانات الخريجين", "تقرير عن أعداد ونسب المتدربين الذين حصلوا على عمل نتيجة الشراكة", "بيانات أعداد الخريجين لثلاث سنوات ماضية"], 4: ["إعداد محاضر اجتماعات مع أصحاب العمل", "العمل على إقامة لقاءات التوظيف"], 5: ["خطابات استشارة أصحاب العمل في تطوير الخطة الاستراتيجية والتشغيلية"], 8: ["إعداد تقارير معدل التقدم في الشراكة مع أصحاب العمل", "إعداد تقارير ماتم إنجازه من مبادرات نتيجة الشراكة مع أصحاب العمل"], 10: ["إعداد محاضر اجتماعات مع أصحاب العمل لمناقشة وجهات المتدربين", "إعداد تقرير تحليل استخدام بيانات ووجهات المتدرين"], 14: ["تقرير الأنشطة المنفذة لتعزيز علاقات الخريجين متضمنا التوصيات"], 15: ["تقرير النسبة المئوية من التوصيات المنفذة لأصحاب العمل", "تقرير إنجاز توظيف المتدربين في تخصصاتهم متضمنا التوصيات"], 16: ["تقرير عدد الإتفاقيات الموقعة مع أصحاب العمل", "تقرير عدد اجتماعات المجلس الإستشاري لأصحاب العمل"], 17: ["تقرير نسبة المؤشرات الاستراتيجية المحققة", "تقرير عدد مرات الدخول والتحديث", "تقرير مبادرات الشراكات متضمنا التوصيات"], 18: ["إعداد التقرير الفصلي"] },
+            "قسم الدراسات العامة": DEPARTMENTS_TASKS, "قسم تقنية الأعمال": DEPARTMENTS_TASKS, "قسم تقنية البيئة": DEPARTMENTS_TASKS, "قسم تقنية الغذاء": DEPARTMENTS_TASKS
         };
 
-        function getCurrentWeekIndex() {
-            const year = document.getElementById('yearSelector').value;
-            const sem = document.getElementById('semesterSelector').value;
-            const startStr = globalData.settings?.[`${year}_${sem}_startDate`] || "2026-01-18";
-            
-            const startDate = new Date(startStr + "T00:00:00");
-            const now = new Date();
-            const diffTime = now - startDate;
-            if (diffTime < 0) return -1;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
-            const chronologicalWeekNum = Math.floor(diffDays / 7) + 1;
-            const targetName = `الأسبوع ${chronologicalWeekNum}`;
-            
-            for (let i = 0; i < NUM_WEEKS; i++) {
-                if (getWeekName(i) === targetName) {
-                    return i;
+        // --- تحميل قواعد البيانات ---
+        async function loadUsersDB() {
+            try {
+                const docSnap = await db.collection("system").doc("usersDB").get();
+                if (docSnap.exists) {
+                    usersDB = docSnap.data();
+                    for(const role in DEFAULT_USERS_BY_ROLE) { if(!usersDB[role]) usersDB[role] = DEFAULT_USERS_BY_ROLE[role]; }
+                } else {
+                    usersDB = JSON.parse(JSON.stringify(DEFAULT_USERS_BY_ROLE));
+                    await db.collection("system").doc("usersDB").set(usersDB);
                 }
+            } catch (e) {
+                console.warn("استخدام الحسابات الافتراضية للخطأ في الشبكة.", e);
+                usersDB = JSON.parse(JSON.stringify(DEFAULT_USERS_BY_ROLE));
             }
-            
-            const defaultIdx = chronologicalWeekNum - 1;
-            return (defaultIdx >= 0 && defaultIdx < NUM_WEEKS) ? defaultIdx : -1;
+            ROLES = Object.keys(usersDB);
         }
 
-        function getWeekName(wIdx) {
-            const year = document.getElementById('yearSelector').value;
-            const sem = document.getElementById('semesterSelector').value;
-            const key = `${year}_${sem}_weekNames`;
-            if (globalData.settings && globalData.settings[key] && globalData.settings[key][wIdx]) {
-                return globalData.settings[key][wIdx];
-            }
-            return `الأسبوع ${wIdx + 1}`;
+        // --- جلب الإعدادات (التواريخ وأسماء الأسابيع) اللحظية ---
+        function loadSettings() {
+            return new Promise((resolve) => {
+                db.collection("system").doc("settings").onSnapshot((doc) => {
+                    if (doc.exists) { globalSettings = doc.data(); } else { globalSettings = {}; }
+                    
+                    const year = document.getElementById('yearSelector')?.value;
+                    const sem = document.getElementById('semesterSelector')?.value;
+                    const dateInput = document.getElementById('systemStartDate');
+                    if (dateInput && year && sem) {
+                        dateInput.value = globalSettings[`${year}_${sem}_startDate`] || "2026-08-30";
+                    }
+                    
+                    if (currentState) { renderTable(); updateAnalytics(); }
+                    resolve();
+                });
+            });
         }
 
-function updateWeekName(wIdx, newName) {
-            if(!loggedInUser.isAdmin) return;
-            const year = document.getElementById('yearSelector').value;
-            const sem = document.getElementById('semesterSelector').value;
-            const key = `${year}_${sem}_weekNames`;
-            
-            if(!globalData.settings) globalData.settings = {};
-            if(!globalData.settings[key]) globalData.settings[key] = {};
-            
-            globalData.settings[key][wIdx] = newName;
-            
-            // حفظ آمن لأسماء الأسابيع في السحابة
-            db.collection("system").doc("masterData").set(
-                { settings: { [key]: globalData.settings[key] } }, 
-                { merge: true }
-            ).then(() => {
-                renderTable(); 
-                updateAnalytics();
-            }).catch(e => console.error("خطأ في حفظ اسم الأسبوع:", e));
+        // --- الإشعارات السحابية المستقلة ---
+        let notificationsDB = [];
+        function loadAndListenNotifications() {
+            db.collection("system").doc("notifications").onSnapshot((doc) => {
+                if (doc.exists) { notificationsDB = doc.data().list || []; } else { notificationsDB = []; }
+                renderNotifications();
+            });
         }
+
+        function addNotification(role, weekName, taskText) {
+            notificationsDB.unshift({
+                id: Date.now(), role: role, weekName: weekName, taskText: taskText,
+                time: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }), read: false
+            });
+            if (notificationsDB.length > 30) notificationsDB.pop(); 
+            db.collection("system").doc("notifications").set({ list: notificationsDB }).catch(e => console.warn(e));
+        }
+
+        function renderNotifications() {
+            if (!loggedInUser || !loggedInUser.isAdmin) return;
+            const list = document.getElementById('notifList');
+            const badge = document.getElementById('notifBadge');
+            
+            let unreadCount = notificationsDB.filter(n => !n.read).length;
+            if (unreadCount > 0) { badge.innerText = unreadCount; badge.classList.remove('hidden'); } 
+            else { badge.classList.add('hidden'); }
+
+            if (notificationsDB.length === 0) {
+                list.innerHTML = '<div class="text-center text-xs text-slate-400 py-4 font-bold">لا توجد إشعارات حالياً</div>'; return;
+            }
+
+            list.innerHTML = notificationsDB.map(n => `
+                <div class="p-2 bg-slate-50 dark:bg-slate-800/50 rounded border ${n.read ? 'border-transparent' : 'border-emerald-200 dark:border-emerald-800'}">
+                    <p class="text-xs font-bold text-slate-800 dark:text-slate-200">
+                        قام <span class="text-tvtcGreen dark:text-emerald-400">${n.role}</span> بإرفاق شاهد
+                    </p>
+                    <p class="text-[10px] text-slate-500 mt-1">${n.weekName} | ${n.taskText.length > 25 ? n.taskText.substring(0,25)+'...' : n.taskText}</p>
+                    <p class="text-[9px] text-slate-400 mt-1 text-left">${n.time}</p>
+                </div>
+            `).join('');
+        }
+
+        function toggleNotifications(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('notifDropdown');
+            dropdown.classList.toggle('hidden');
+            
+            if (!dropdown.classList.contains('hidden')) {
+                let hasUnread = false;
+                notificationsDB.forEach(n => { if (!n.read) hasUnread = true; n.read = true; });
+                if (hasUnread) { db.collection("system").doc("notifications").set({ list: notificationsDB }).catch(e => console.warn(e)); }
+            }
+        }
+
+        function clearNotifications() { db.collection("system").doc("notifications").set({ list: [] }).catch(e => console.warn(e)); }
+
+        window.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('notifDropdown');
+            if (dropdown && !dropdown.classList.contains('hidden') && !e.target.closest('#notificationsWrapper')) { dropdown.classList.add('hidden'); }
+        });
+
+
+        // --- بداية التشغيل للواجهة ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('loginForm').addEventListener('submit', (e) => { e.preventDefault(); handleLogin(); });
+
+            const isDark = localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.classList.toggle('dark', isDark);
+            
+            const viewingDateEl = document.getElementById('viewingDateDisplay');
+            const printDateEl = document.getElementById('currentDatePrint');
+            const currentDateStr = new Date().toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            if (viewingDateEl) viewingDateEl.innerText = 'تاريخ الطباعة: ' + currentDateStr;
+            if (printDateEl) printDateEl.innerText = 'تاريخ الطباعة: ' + currentDateStr;
+            
+            await loadUsersDB();
+            await loadSettings(); 
+            loadAndListenNotifications();
+
+            checkAuth(); 
+        });
+
+        function handleLogin() {
+            const u = document.getElementById('username').value.trim().toLowerCase(), p = document.getElementById('password').value;
+            let foundRole = null;
+            for(const [role, data] of Object.entries(usersDB)) {
+                if(data.username.toLowerCase() === u && data.pass === p) { foundRole = role; break; }
+            }
+            if(foundRole) {
+                document.getElementById('loginError').classList.add('hidden');
+                loggedInUser = { role: foundRole, username: u, isAdmin: usersDB[foundRole].isAdmin };
+                localStorage.setItem('tvtcUser', JSON.stringify(loggedInUser));
+                checkAuth();
+            } else { document.getElementById('loginError').classList.remove('hidden'); }
+        }
+
+        function doLogout() { localStorage.removeItem('tvtcUser'); location.reload(); }
 
         function checkAuth() {
             const stored = localStorage.getItem('tvtcUser');
@@ -748,24 +576,16 @@ function updateWeekName(wIdx, newName) {
                 document.getElementById('currentUserDisplay').innerHTML = `مرحباً، <span class="font-bold">${loggedInUser.role}</span>`;
                 
                 if(loggedInUser.isAdmin) {
-                    document.getElementById('notificationsWrapper').classList.remove('hidden');
-                    renderNotifications(); // تحديث واجهة الإشعارات
-                    document.getElementById('printReportBtn').classList.remove('hidden');
-                    document.getElementById('printReportBtn').classList.add('flex');
-                    document.getElementById('manageUsersBtn').classList.remove('hidden');
-                    document.getElementById('manageUsersBtn').classList.add('flex');
-                    document.getElementById('startDateContainer').classList.remove('hidden');
-                    document.getElementById('startDateContainer').classList.add('flex');
+                    document.getElementById('notificationsWrapper').classList.remove('hidden'); renderNotifications(); 
+                    document.getElementById('printReportBtn').classList.remove('hidden'); document.getElementById('printReportBtn').classList.add('flex');
+                    document.getElementById('manageUsersBtn').classList.remove('hidden'); document.getElementById('manageUsersBtn').classList.add('flex');
+                    document.getElementById('startDateContainer').classList.remove('hidden'); document.getElementById('startDateContainer').classList.add('flex');
                 } else {
-                    document.getElementById('printReportBtn').classList.add('hidden');
-                    document.getElementById('printReportBtn').classList.remove('flex');
+                    document.getElementById('printReportBtn').classList.add('hidden'); document.getElementById('printReportBtn').classList.remove('flex');
                     document.getElementById('notificationsWrapper').classList.add('hidden');
-                    document.getElementById('manageUsersBtn').classList.add('hidden');
-                    document.getElementById('manageUsersBtn').classList.remove('flex');
-                    document.getElementById('startDateContainer').classList.add('hidden');
-                    document.getElementById('startDateContainer').classList.remove('flex');
+                    document.getElementById('manageUsersBtn').classList.add('hidden'); document.getElementById('manageUsersBtn').classList.remove('flex');
+                    document.getElementById('startDateContainer').classList.add('hidden'); document.getElementById('startDateContainer').classList.remove('flex');
                 }
-                
                 initDropdowns(); 
             } else {
                 document.getElementById('loginOverlay').classList.remove('hidden');
@@ -773,103 +593,31 @@ function updateWeekName(wIdx, newName) {
             }
         }
 
-        function handleLogin(e) {
-            if(e) e.preventDefault();
-            const u = document.getElementById('username').value.trim().toLowerCase(), p = document.getElementById('password').value;
-            
-            let foundRole = null;
-            for(const [role, data] of Object.entries(usersDB)) {
-                if(data.username.toLowerCase() === u && data.pass === p) {
-                    foundRole = role;
-                    break;
-                }
-            }
-            
-            if(foundRole) {
-                document.getElementById('loginError').classList.add('hidden');
-                loggedInUser = { role: foundRole, username: u, isAdmin: usersDB[foundRole].isAdmin };
-                localStorage.setItem('tvtcUser', JSON.stringify(loggedInUser));
-                checkAuth();
-            } else {
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        }
-
-        function doLogout() { localStorage.removeItem('tvtcUser'); location.reload(); }
-
         function initDropdowns() {
             const r = document.getElementById('roleSelector'), y = document.getElementById('yearSelector'), s = document.getElementById('semesterSelector');
             r.innerHTML = ''; y.innerHTML = ''; s.innerHTML = '';
             ROLES.forEach(role => r.add(new Option(role, role)));
             YEARS.forEach(year => y.add(new Option(`عام ${year} هـ`, year)));
             SEMESTERS.forEach(sem => s.add(new Option(sem, sem)));
-            r.value = loggedInUser.role; y.value = "1448"; s.value = "الفصل الأول";
+            
+            let autoYear = "1448", autoSem = "الفصل الأول";
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            for (let yr of YEARS) {
+                for (let sm of SEMESTERS) {
+                    let st = globalSettings[`${yr}_${sm}_startDate`];
+                    if (st) {
+                        let stDate = new Date(st + "T00:00:00");
+                        let diffDays = Math.floor((now.getTime() - stDate.getTime()) / (1000 * 60 * 60 * 24));
+                        if (diffDays >= 0 && diffDays <= 140) { autoYear = yr; autoSem = sm; break; }
+                    }
+                }
+            }
+
+            r.value = loggedInUser.role; y.value = autoYear; s.value = autoSem;
             [r, y, s].forEach(el => el.addEventListener('change', changeContext));
             
-            document.getElementById('systemStartDate').value = globalData.settings?.[`1448_الفصل الأول_startDate`] || "2026-01-18";
             changeContext(); 
-        }
-
-async function loadGlobalData() {
-            try {
-                const docSnap = await db.collection("system").doc("masterData").get();
-                if (docSnap.exists) { globalData = docSnap.data(); }
-                if (!globalData.settings) globalData.settings = {};
-
-                // المزامنة اللحظية الشاملة
-                db.collection("system").doc("masterData").onSnapshot((doc) => {
-                    if (doc.exists) {
-                        globalData = doc.data();
-                        if (!globalData.settings) globalData.settings = {};
-                        
-                        if(currentKey && globalData[currentKey]) {
-                            currentState = globalData[currentKey];
-                            
-                            // تحديث الملاحظات
-                            const notesEl = document.getElementById('employeeNotes');
-                            if (notesEl) { notesEl.value = currentState.notesAndChallenges || ''; }
-                            
-                            // تحديث خانة التاريخ اللحظي لمدير الجودة لمنع اختفائه
-                            const year = document.getElementById('yearSelector').value;
-                            const sem = document.getElementById('semesterSelector').value;
-                            const dateInput = document.getElementById('systemStartDate');
-                            if (dateInput) {
-                                dateInput.value = globalData.settings[`${year}_${sem}_startDate`] || "2026-01-18";
-                            }
-                            
-                            renderTable();
-                            updateAnalytics();
-                        }
-                    }
-                });
-            } catch (e) {
-                console.warn("Failed loading global data", e);
-                if (!globalData.settings) globalData.settings = {};
-            }
-        }
-
-        async function saveGlobalData() { 
-            try { await db.collection("system").doc("masterData").set(globalData); } catch (e) { console.error("Error saving data", e); }
-        }
-
-function updateSystemStartDate() {
-            const val = document.getElementById('systemStartDate').value;
-            const year = document.getElementById('yearSelector').value;
-            const sem = document.getElementById('semesterSelector').value;
-            
-            if(val) {
-                if(!globalData.settings) globalData.settings = {};
-                const key = `${year}_${sem}_startDate`;
-                globalData.settings[key] = val; // تحديث محلي
-                
-                // حفظ آمن وموجه للسحابة يمنع الضياع بعد تسجيل الخروج
-                db.collection("system").doc("masterData").set(
-                    { settings: { [key]: val } }, 
-                    { merge: true }
-                ).then(() => {
-                    renderTable();
-                }).catch(e => console.error("خطأ في حفظ التاريخ:", e));
-            }
         }
 
         function createEmptyState(role) {
@@ -888,91 +636,60 @@ function updateSystemStartDate() {
             };
         }
 
-function changeContext() {
-            const role = document.getElementById('roleSelector').value, year = document.getElementById('yearSelector').value, sem = document.getElementById('semesterSelector').value;
+        // --- المزامنة العميقة المستقلة لكل قسم (يمنع مسح الروابط) ---
+        function changeContext() {
+            const role = document.getElementById('roleSelector').value;
+            const year = document.getElementById('yearSelector').value;
+            const sem = document.getElementById('semesterSelector').value;
+            
             canEditCurrentPlan = (loggedInUser.role === role);
             currentKey = `${role}_${year}_${sem}`;
             
-            if(!globalData.settings) globalData.settings = {};
-            const startStr = globalData.settings[`${year}_${sem}_startDate`] || "2026-01-18";
+            const startStr = globalSettings[`${year}_${sem}_startDate`] || "2026-08-30";
             const dateInput = document.getElementById('systemStartDate');
             if (dateInput) dateInput.value = startStr;
 
-            if (!globalData[currentKey]) {
-                globalData[currentKey] = createEmptyState(role);
-                // حفظ موجه عند إنشاء روزنامة جديدة للقسم
-                db.collection("system").doc("masterData").set(
-                    { [currentKey]: globalData[currentKey] }, 
-                    { merge: true }
-                );
-            } else {
-                let dataUpdated = false;
-                if (globalData[currentKey].notesAndChallenges === undefined) {
-                    globalData[currentKey].notesAndChallenges = '';
-                    dataUpdated = true;
-                }
-                globalData[currentKey].weeks.forEach((w, wIdx) => {
-                    w.tasks.forEach((t, tIdx) => {
-                        if (!t.text && DEFAULT_ROLE_TASKS[role] && DEFAULT_ROLE_TASKS[role][wIdx] && DEFAULT_ROLE_TASKS[role][wIdx][tIdx]) {
-                            t.text = DEFAULT_ROLE_TASKS[role][wIdx][tIdx];
-                            dataUpdated = true;
-                        }
-                        if (t.qualityNote === undefined) {
-                            t.qualityNote = '';
-                            dataUpdated = true;
-                        }
-                    });
-                });
-                
-                // دمج التحديثات الناقصة فقط إن وجدت
-                if (dataUpdated) {
-                    db.collection("system").doc("masterData").set(
-                        { [currentKey]: globalData[currentKey] }, 
-                        { merge: true }
-                    );
-                }
-            }
-            
-            currentState = globalData[currentKey];
-            
-            const readOnlyBanner = document.getElementById('readOnlyBanner');
-            if(canEditCurrentPlan || loggedInUser.isAdmin) {
-                readOnlyBanner.classList.add('hidden');
-            } else {
-                readOnlyBanner.classList.remove('hidden');
-            }
-            
-            const notesEl = document.getElementById('employeeNotes');
-            if (notesEl) {
-                notesEl.value = currentState.notesAndChallenges || '';
-                notesEl.disabled = !(canEditCurrentPlan || loggedInUser.isAdmin);
-            }
-            
             document.getElementById('docRoleTitle').innerText = role;
             document.getElementById('docSemesterTitle').innerText = sem;
             document.getElementById('docYearTitle').innerText = `للعام التدريبي ${year} هـ`;
-            renderTable(); updateAnalytics();
+
+            if (planUnsubscribe) { planUnsubscribe(); planUnsubscribe = null; }
+
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" class="text-center py-10 font-bold text-slate-500">جاري تحميل الروزنامة من السحابة... ⏳</td></tr>';
+
+            // جلب جدول مهام القسم المحدد فقط بشكل لحظي
+            planUnsubscribe = db.collection("plans").doc(currentKey).onSnapshot((docSnap) => {
+                if (docSnap.exists) {
+                    currentState = docSnap.data();
+                    let dataUpdated = false;
+                    if (currentState.notesAndChallenges === undefined) { currentState.notesAndChallenges = ''; dataUpdated = true; }
+                    currentState.weeks.forEach((w, wIdx) => {
+                        w.tasks.forEach((t, tIdx) => {
+                            if (!t.text && DEFAULT_ROLE_TASKS[role] && DEFAULT_ROLE_TASKS[role][wIdx] && DEFAULT_ROLE_TASKS[role][wIdx][tIdx]) {
+                                t.text = DEFAULT_ROLE_TASKS[role][wIdx][tIdx];
+                                dataUpdated = true;
+                            }
+                            if (t.qualityNote === undefined) { t.qualityNote = ''; dataUpdated = true; }
+                        });
+                    });
+                    if (dataUpdated) db.collection("plans").doc(currentKey).set(currentState).catch(e => console.error(e));
+                } else {
+                    currentState = createEmptyState(role);
+                    db.collection("plans").doc(currentKey).set(currentState).catch(e => console.error(e));
+                }
+                
+                const readOnlyBanner = document.getElementById('readOnlyBanner');
+                if(canEditCurrentPlan || loggedInUser.isAdmin) { readOnlyBanner.classList.add('hidden'); } else { readOnlyBanner.classList.remove('hidden'); }
+                
+                const notesEl = document.getElementById('employeeNotes');
+                if (notesEl) { notesEl.value = currentState.notesAndChallenges || ''; notesEl.disabled = !(canEditCurrentPlan || loggedInUser.isAdmin); }
+                
+                renderTable(); updateAnalytics();
+            });
         }
 
-        function getProgressBarHTML(p) {
-            const r = 35, c = 2 * Math.PI * r, o = c - (p / 100) * c;
-            let color = p < 50 ? '#ef4444' : (p < 85 ? '#f59e0b' : '#10b981');
-            return `<div class="flex flex-col items-center justify-center h-full"><div class="relative flex items-center justify-center"><svg width="90" height="90"><circle class="text-slate-100 dark:text-slate-800" stroke-width="8" stroke="currentColor" fill="transparent" r="${r}" cx="45" cy="45"/><circle class="progress-ring__circle" stroke-width="8" stroke-dasharray="${c} ${c}" stroke-dashoffset="${o}" stroke-linecap="round" stroke="${color}" fill="transparent" r="${r}" cx="45" cy="45"/></svg><span class="absolute text-base font-bold" style="color:${color}">${p}%</span></div><span class="text-[10px] font-bold text-slate-400 mt-1">الإنجاز</span></div>`;
-        }
-        
-        function canEditTaskDetails(taskIndex) {
-            if (loggedInUser.isAdmin) return true;
-            if (canEditCurrentPlan && taskIndex >= 4) return true;
-            return false;
-        }
-
-        function canUploadAttachment(taskIndex) {
-            if (loggedInUser.isAdmin) return true;
-            if (canEditCurrentPlan) return true;
-            return false;
-        }
-
-function updateTaskFields(weekIndex, taskIndex, updates) {
+        // التعديل ورفع الملفات بأمان للقسم المحدد فقط
+        function updateTaskFields(weekIndex, taskIndex, updates) {
             const isFileUpdate = 'fileName' in updates;
             const isDetailsUpdate = 'text' in updates || 'status' in updates;
             const isQualityNoteUpdate = 'qualityNote' in updates;
@@ -981,35 +698,75 @@ function updateTaskFields(weekIndex, taskIndex, updates) {
             if (isDetailsUpdate && !canEditTaskDetails(taskIndex)) return;
             if (isQualityNoteUpdate && !loggedInUser.isAdmin) return;
             
-            let needsRender = false;
-
             for (const [field, value] of Object.entries(updates)) {
                 currentState.weeks[weekIndex].tasks[taskIndex][field] = value;
-                if (field === 'status' || field === 'fileName' || field === 'qualityNote') needsRender = true;
             }
             
-            // الحل الجذري: حفظ وتحديث مهمة "هذا القسم فقط" بالسحابة، دون التأثير على ملفات بقية الأقسام!
-            db.collection("system").doc("masterData").set(
-                { [currentKey]: currentState }, 
-                { merge: true }
-            ).then(() => {
-                if(needsRender) { renderTable(); if(updates.status !== undefined) updateAnalytics(); }
-            }).catch(e => console.error("Error saving task:", e));
+            // سيتم تحديث الواجهة تلقائياً بواسطة onSnapshot بعد الحفظ
+            db.collection("plans").doc(currentKey).set(currentState).catch(e => console.error("Error saving task:", e));
         }
 
-function updateEmployeeNotes(val) {
+        function updateEmployeeNotes(val) {
             if (!currentState) return;
             if (!(canEditCurrentPlan || loggedInUser.isAdmin)) return;
             currentState.notesAndChallenges = val;
-            
-            // حفظ موجه للقسم فقط
-            db.collection("system").doc("masterData").set(
-                { [currentKey]: currentState }, 
-                { merge: true }
-            );
+            db.collection("plans").doc(currentKey).set(currentState).catch(e => console.error(e));
         }
 
-        // --- رفع الملفات عبر Cloudinary ---
+        function updateSystemStartDate() {
+            const val = document.getElementById('systemStartDate').value;
+            const year = document.getElementById('yearSelector').value;
+            const sem = document.getElementById('semesterSelector').value;
+            if(val) {
+                const key = `${year}_${sem}_startDate`;
+                db.collection("system").doc("settings").set({ [key]: val }, { merge: true }).catch(e => console.error("خطأ", e));
+            }
+        }
+
+        function updateWeekName(wIdx, newName) {
+            if(!loggedInUser.isAdmin) return;
+            const year = document.getElementById('yearSelector').value;
+            const sem = document.getElementById('semesterSelector').value;
+            const key = `${year}_${sem}_weekNames`;
+            
+            let currentNames = globalSettings[key] || {};
+            currentNames[wIdx] = newName;
+            
+            db.collection("system").doc("settings").set({ [key]: currentNames }, { merge: true }).catch(e => console.error("خطأ", e));
+        }
+
+        function getCurrentWeekIndex() {
+            const year = document.getElementById('yearSelector').value;
+            const sem = document.getElementById('semesterSelector').value;
+            const startStr = globalSettings[`${year}_${sem}_startDate`] || "2026-08-30";
+            const startDate = new Date(startStr + "T00:00:00");
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            
+            const diffTime = now.getTime() - startDate.getTime();
+            if (diffTime < 0) return -1;
+            
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const chronologicalWeekNum = Math.floor(diffDays / 7) + 1;
+            const targetName = `الأسبوع ${chronologicalWeekNum}`;
+            
+            for (let i = 0; i < NUM_WEEKS; i++) { if (getWeekName(i) === targetName) { return i; } }
+            
+            const defaultIdx = chronologicalWeekNum - 1;
+            return (defaultIdx >= 0 && defaultIdx < NUM_WEEKS) ? defaultIdx : -1;
+        }
+
+        function getWeekName(wIdx) {
+            const year = document.getElementById('yearSelector').value;
+            const sem = document.getElementById('semesterSelector').value;
+            const key = `${year}_${sem}_weekNames`;
+            if (globalSettings[key] && globalSettings[key][wIdx]) { return globalSettings[key][wIdx]; }
+            return `الأسبوع ${wIdx + 1}`;
+        }
+
+        function canEditTaskDetails(taskIndex) { if (loggedInUser.isAdmin) return true; if (canEditCurrentPlan && taskIndex >= 4) return true; return false; }
+        function canUploadAttachment(taskIndex) { if (loggedInUser.isAdmin) return true; if (canEditCurrentPlan) return true; return false; }
+
         async function handleFileUpload(weekIndex, taskIndex, inputElement) {
             if(!canUploadAttachment(taskIndex) || !inputElement.files || inputElement.files.length === 0) return;
             const file = inputElement.files[0];
@@ -1029,41 +786,35 @@ function updateEmployeeNotes(val) {
 
                 if (data.secure_url) {
                     updateTaskFields(weekIndex, taskIndex, { fileName: file.name, fileData: data.secure_url });
-                    
                     const role = document.getElementById('roleSelector').value;
                     const weekName = getWeekName(weekIndex);
                     const taskText = currentState.weeks[weekIndex].tasks[taskIndex].text || 'مهمة بدون وصف';
                     addNotification(role, weekName, taskText);
                 } else { throw new Error("Upload Error"); }
             } catch (error) {
-                console.error("Upload error", error);
-                alert("فشل الرفع، يرجى المحاولة مرة أخرى والتأكد من جودة اتصالك بالإنترنت.");
-                renderTable(); // إعادة الواجهة لحالتها الطبيعية
+                console.error("Upload Error:", error);
+                alert("فشل الرفع. تأكد من جودة اتصالك بالإنترنت.");
+                renderTable(); 
             }
         }
 
-        function removeFile(weekIndex, taskIndex) {
-            if(!canUploadAttachment(taskIndex)) return;
-            updateTaskFields(weekIndex, taskIndex, { fileName: '', fileData: '' });
-        }
-
+        function removeFile(weekIndex, taskIndex) { if(!canUploadAttachment(taskIndex)) return; updateTaskFields(weekIndex, taskIndex, { fileName: '', fileData: '' }); }
+        
         function viewFile(weekIndex, taskIndex) {
             if(!canEditCurrentPlan && !loggedInUser.isAdmin) { alert("لا تملك الصلاحية."); return; }
             const task = currentState.weeks[weekIndex].tasks[taskIndex];
-            if(task.fileData) {
-                window.open(task.fileData, '_blank');
-            }
+            if(task.fileData) { window.open(task.fileData, '_blank'); }
         }
-        
+
         async function downloadWeekAttachments(wIdx) {
             if(!canEditCurrentPlan && !loggedInUser.isAdmin) { alert("لا تملك الصلاحية."); return; }
             const week = currentState.weeks[wIdx];
             const zip = new JSZip();
             let hasFiles = false;
 
-            alert('يتم الآن تجهيز الملفات وتجميعها للتحميل... يرجى الانتظار.');
+            alert('يتم الآن تجميع الملفات وتجهيزها للتحميل... يرجى الانتظار.');
 
-            for (let i=0; i < week.tasks.length; i++) {
+            for(let i=0; i<week.tasks.length; i++) {
                 let t = week.tasks[i];
                 if(t.fileName && t.fileData) {
                     try {
@@ -1071,16 +822,11 @@ function updateEmployeeNotes(val) {
                         const blob = await response.blob();
                         zip.file(`مهمة_${i+1}_${t.fileName}`, blob);
                         hasFiles = true;
-                    } catch(e) {
-                        console.error('Error fetching file for zip', e);
-                    }
+                    } catch(e) { console.error("Error pulling file", e); }
                 }
             }
 
-            if(!hasFiles) {
-                alert('لا توجد مرفقات في هذا الأسبوع لتقوم بتحميلها، أو تم حظر التحميل التلقائي للملف السحابي.');
-                return;
-            }
+            if(!hasFiles) { alert('لا توجد مرفقات في هذا الأسبوع لتقوم بتحميلها، أو تم حظر التحميل التلقائي للملف السحابي.'); return; }
             const content = await zip.generateAsync({type:"blob"});
             const url = URL.createObjectURL(content);
             const a = document.createElement('a');
@@ -1143,12 +889,8 @@ function updateEmployeeNotes(val) {
                         let weekNameHtml = '';
                         if (loggedInUser.isAdmin) {
                             let opts = '';
-                            WEEK_NAME_OPTIONS.forEach(opt => {
-                                opts += `<option value="${opt}" ${currentWeekName === opt ? 'selected' : ''}>${opt}</option>`;
-                            });
-                            if (!WEEK_NAME_OPTIONS.includes(currentWeekName)) {
-                                opts += `<option value="${currentWeekName}" selected>${currentWeekName}</option>`;
-                            }
+                            WEEK_NAME_OPTIONS.forEach(opt => { opts += `<option value="${opt}" ${currentWeekName === opt ? 'selected' : ''}>${opt}</option>`; });
+                            if (!WEEK_NAME_OPTIONS.includes(currentWeekName)) { opts += `<option value="${currentWeekName}" selected>${currentWeekName}</option>`; }
                             weekNameHtml = `<select class="w-full text-center font-bold bg-transparent border border-transparent hover:border-slate-300 dark:hover:border-slate-600 rounded px-1 py-1 outline-none transition-colors text-sm appearance-none cursor-pointer" onchange="updateWeekName(${w}, this.value)" title="تغيير مسمى الأسبوع">${opts}</select>`;
                         } else {
                             weekNameHtml = `<span class="block font-bold text-sm">${currentWeekName}</span>`;
@@ -1183,9 +925,7 @@ function updateEmployeeNotes(val) {
                     html += `<td class="p-1"><textarea class="tbl-input text-right text-[10px] resize-none h-8 dark:text-slate-200 placeholder:text-slate-400 font-bold" placeholder="${qNotePlaceholder}" onchange="updateTaskFields(${w}, ${t}, {qualityNote: this.value})" ${qNoteDis}>${task.qualityNote || ''}</textarea></td>`;
                     html += `<td class="text-center text-xs font-bold ${currStatus.textClass}">${task.status==='none'?'-':currStatus.val+'%'}</td>`;
                     
-                    if (t === 0) {
-                        html += `<td rowspan="${TASKS_PER_WEEK}" class="text-center align-middle bg-slate-50 dark:bg-slate-800/50">${getProgressBarHTML(weekProg)}</td>`;
-                    }
+                    if (t === 0) { html += `<td rowspan="${TASKS_PER_WEEK}" class="text-center align-middle bg-slate-50 dark:bg-slate-800/50">${getProgressBarHTML(weekProg)}</td>`; }
                     html += `</tr>`;
                 }
             }
@@ -1240,47 +980,54 @@ function updateEmployeeNotes(val) {
             }
         }
 
+        function getProgressBarHTML(p) {
+            const r = 35, c = 2 * Math.PI * r, o = c - (p / 100) * c;
+            let color = p < 50 ? '#ef4444' : (p < 85 ? '#f59e0b' : '#10b981');
+            return `<div class="flex flex-col items-center justify-center h-full"><div class="relative flex items-center justify-center"><svg width="90" height="90"><circle class="text-slate-100 dark:text-slate-800" stroke-width="8" stroke="currentColor" fill="transparent" r="${r}" cx="45" cy="45"/><circle class="progress-ring__circle" stroke-width="8" stroke-dasharray="${c} ${c}" stroke-dashoffset="${o}" stroke-linecap="round" stroke="${color}" fill="transparent" r="${r}" cx="45" cy="45"/></svg><span class="absolute text-base font-bold" style="color:${color}">${p}%</span></div><span class="text-[10px] font-bold text-slate-400 mt-1">الإنجاز</span></div>`;
+        }
+
         function getSmallProgressBarHTML(p) {
             const r = 20, c = 2 * Math.PI * r, o = c - (p / 100) * c;
             let color = p < 50 ? '#ef4444' : (p < 85 ? '#f59e0b' : '#10b981');
             return `<div class="relative flex items-center justify-center"><svg width="50" height="50"><circle class="text-slate-200" stroke-width="5" stroke="currentColor" fill="transparent" r="${r}" cx="25" cy="25"/><circle class="progress-ring__circle" stroke-width="5" stroke-dasharray="${c} ${c}" stroke-dashoffset="${o}" stroke-linecap="round" stroke="${color}" fill="transparent" r="${r}" cx="25" cy="25"/></svg><span class="absolute text-xs font-bold" style="color:${color}">${p}%</span></div>`;
         }
 
-        function openReportModal() {
+        // --- تقرير الجودة السحابي الشامل ---
+        async function openReportModal() {
             const cwi = getCurrentWeekIndex();
             const defaultW = cwi >= 0 && cwi < 20 ? cwi + 1 : 1;
             const weekStr = prompt("أدخل رقم الأسبوع لإصدار تقرير الجودة المجمع (1 - 20):", defaultW);
             
             if(weekStr) {
                 const wIdx = parseInt(weekStr) - 1;
-                if(wIdx >= 0 && wIdx <= 19) {
-                    generateAndPrintReport(wIdx);
-                } else {
-                    alert("الرجاء إدخال رقم أسبوع صحيح بين 1 و 20.");
-                }
+                if(wIdx >= 0 && wIdx <= 19) { await generateAndPrintReport(wIdx); } 
+                else { alert("الرجاء إدخال رقم أسبوع صحيح بين 1 و 20."); }
             }
         }
 
-        function generateAndPrintReport(wIdx) {
+        async function generateAndPrintReport(wIdx) {
             const year = document.getElementById('yearSelector').value;
             const sem = document.getElementById('semesterSelector').value;
             
             document.getElementById('reportWeekNum').innerText = getWeekName(wIdx);
             document.getElementById('reportPrintDate').innerText = 'تاريخ الطباعة: ' + new Date().toLocaleDateString('ar-SA');
             
+            const reportContent = document.getElementById('reportContent');
+            reportContent.innerHTML = '<div class="col-span-3 text-center py-10 font-bold text-lg text-tvtcGreen">جاري تجميع التقرير من السحابة... يرجى الانتظار ⏳</div>';
+            document.body.classList.add('report-print-mode');
+            
             let html = '';
             
-            ROLES.forEach(role => {
+            for (const role of ROLES) {
                 const key = `${role}_${year}_${sem}`;
-                let plan = globalData[key];
-                
-                if (!plan || !plan.weeks) {
-                    plan = createEmptyState(role);
-                }
+                let plan;
+                try {
+                    const docSnap = await db.collection("plans").doc(key).get();
+                    if (docSnap.exists) { plan = docSnap.data(); } else { plan = createEmptyState(role); }
+                } catch (e) { plan = createEmptyState(role); }
                 
                 const week = plan.weeks[wIdx];
                 const prog = calculateWeekProgress(week);
-                
                 const filteredTasks = week.tasks.filter(t => t.status === 'unfulfilled' || t.status === 'partial' || t.status === 'fulfilled');
                 
                 html += `
@@ -1293,7 +1040,7 @@ function updateEmployeeNotes(val) {
                 `;
                 
                 if(filteredTasks.length === 0) {
-                    html += `<li class="text-slate-400 text-xs italic mt-2 text-center">لا توجد مهام (مستوفاة/جزئية/متعثرة) هذا الأسبوع.</li>`;
+                    html += `<li class="text-slate-400 text-xs italic mt-2 text-center">لا توجد مهام مقيمة للطباعة هذا الأسبوع.</li>`;
                 } else {
                     filteredTasks.forEach(t => {
                         let bgClass = '';
@@ -1311,18 +1058,16 @@ function updateEmployeeNotes(val) {
                         </li>`;
                     });
                 }
-                
                 html += `</ul></div>`;
-            });
+            }
             
-            document.getElementById('reportContent').innerHTML = html;
-            
-            document.body.classList.add('report-print-mode');
+            reportContent.innerHTML = html;
             window.print();
             setTimeout(() => { document.body.classList.remove('report-print-mode'); }, 1000);
         }
 
-function openManageUsersModal() {
+        // --- إدارة الحسابات والروزنامات الجديدة ---
+        function openManageUsersModal() {
             if(!loggedInUser.isAdmin) return;
             const container = document.getElementById('usersListContainer');
             let html = '';
@@ -1347,8 +1092,39 @@ function openManageUsersModal() {
             document.getElementById('manageUsersModal').classList.remove('hidden');
         }
 
-        function closeManageUsersModal() {
-            document.getElementById('manageUsersModal').classList.add('hidden');
+        function closeManageUsersModal() { document.getElementById('manageUsersModal').classList.add('hidden'); }
+
+        async function addNewAccount() {
+            if(!loggedInUser.isAdmin) return;
+            const rName = document.getElementById('newRoleName').value.trim();
+            const rUser = document.getElementById('newRoleUser').value.trim();
+            
+            if(!rName || !rUser) { alert('الرجاء إدخال اسم الجهة واسم المستخدم.'); return; }
+            if(usersDB[rName]) { alert('اسم الجهة موجود مسبقاً!'); return; }
+            
+            usersDB[rName] = { username: rUser, pass: "123", isAdmin: false };
+            ROLES = Object.keys(usersDB);
+            
+            try {
+                await db.collection("system").doc("usersDB").set(usersDB);
+                document.getElementById('newRoleName').value = '';
+                document.getElementById('newRoleUser').value = '';
+                openManageUsersModal(); initDropdowns();
+            } catch(e) { alert("فشل الإضافة السحابية."); }
+        }
+
+        async function deleteAccount(roleName) {
+            if(!loggedInUser.isAdmin) return;
+            if(roleName === 'وكيل ضبط الجودة' || roleName === 'عميد الكلية') { alert('لا يمكن حذف الحسابات الأساسية!'); return; }
+            
+            if(confirm(`هل أنت متأكد من حذف حساب (${roleName})؟ لا يمكن التراجع عن هذا.`)) {
+                delete usersDB[roleName];
+                ROLES = Object.keys(usersDB);
+                try {
+                    await db.collection("system").doc("usersDB").set(usersDB);
+                    openManageUsersModal(); initDropdowns();
+                } catch(e) { alert("فشل الحذف في قاعدة البيانات السحابية."); }
+            }
         }
 
         async function saveUsersDB() {
@@ -1369,81 +1145,12 @@ function openManageUsersModal() {
                 alert('حدث خطأ أثناء الحفظ، يرجى التأكد من إعدادات قاعدة البيانات.');
             }
         }
-async function addNewAccount() {
-            if(!loggedInUser.isAdmin) return;
-            const rName = document.getElementById('newRoleName').value.trim();
-            const rUser = document.getElementById('newRoleUser').value.trim();
-            
-            if(!rName || !rUser) { alert('الرجاء إدخال اسم الجهة واسم المستخدم.'); return; }
-            if(usersDB[rName]) { alert('اسم الجهة موجود مسبقاً!'); return; }
-            
-            usersDB[rName] = { username: rUser, pass: "123", isAdmin: false };
-            ROLES = Object.keys(usersDB);
-            
-            try {
-                await db.collection("system").doc("usersDB").set(usersDB);
-                document.getElementById('newRoleName').value = '';
-                document.getElementById('newRoleUser').value = '';
-                openManageUsersModal(); // تحديث القائمة
-                initDropdowns(); // تحديث القوائم المنسدلة في النظام
-            } catch(e) { alert("فشل الإضافة في قاعدة البيانات السحابية."); }
-        }
-
-        async function deleteAccount(roleName) {
-            if(!loggedInUser.isAdmin) return;
-            if(roleName === 'وكيل ضبط الجودة' || roleName === 'عميد الكلية') { alert('لا يمكن حذف الحسابات الأساسية!'); return; }
-            
-            if(confirm(`هل أنت متأكد من حذف حساب (${roleName})؟ لا يمكن التراجع عن هذا.`)) {
-                delete usersDB[roleName];
-                ROLES = Object.keys(usersDB);
-                try {
-                    await db.collection("system").doc("usersDB").set(usersDB);
-                    openManageUsersModal(); // تحديث القائمة
-                    initDropdowns(); // تحديث القوائم المنسدلة
-                } catch(e) { alert("فشل الحذف في قاعدة البيانات السحابية."); }
-            }
-        }
 
         function toggleTheme() {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             updateAnalytics();
         }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            const isDark = localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            document.documentElement.classList.toggle('dark', isDark);
-            
-            const viewingDateEl = document.getElementById('viewingDateDisplay');
-            const printDateEl = document.getElementById('currentDatePrint');
-            const currentDateStr = new Date().toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
-            
-            if (viewingDateEl) viewingDateEl.innerText = 'تاريخ الطباعة: ' + currentDateStr;
-            if (printDateEl) printDateEl.innerText = 'تاريخ الطباعة: ' + currentDateStr;
-            
-            const loginForm = document.getElementById('loginForm');
-            if (loginForm) loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                handleLogin(e);
-            });
-            
-            const clearBtn = document.getElementById('clearDataBtn');
-            if (clearBtn) clearBtn.addEventListener('click', () => { 
-                if(confirm('هل أنت متأكد من مسح جميع المهام المدخلة في خطة هذا المسؤول؟ (لن تُمسح المهام الأساسية المبرمجة)')) { 
-                    const role = document.getElementById('roleSelector').value;
-                    globalData[currentKey] = createEmptyState(role); 
-                    saveGlobalData(); 
-                    changeContext(); 
-                } 
-            });
-
-            // تحميل البيانات من الإنترنت أولاً
-            await loadUsersDB();
-            await loadGlobalData();
-            loadAndListenNotifications();
-
-            checkAuth(); 
-        });
     </script>
 </body>
 </html>
